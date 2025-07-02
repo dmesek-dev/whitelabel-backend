@@ -97,6 +97,45 @@ app.post('/resize-icon', upload.single('image'), async (req, res) => {
     }
 });
 
+app.post('/generate-assets', async (req, res) => {
+    try {
+        const clientName = req.query['client-name'] || req.body?.clientName;
+        
+        if (!clientName) {
+            return res.status(400).json({ error: 'client-name parameter is required' });
+        }
+
+        const scriptPath = path.join(__dirname, 'generate_assets_utils.sh');
+
+        if (!fs.existsSync(scriptPath)) {
+            return res.status(500).json({ error: 'generate_assets_utils.sh script not found' });
+        }
+
+        const command = `"${scriptPath}" -c "${clientName}"`;
+        
+        console.log(`Executing: ${command}`);
+        const { stdout, stderr } = await execAsync(command);
+
+        console.log('Script output:', stdout);
+        if (stderr) {
+            console.warn('Script stderr:', stderr);
+        }
+
+        res.json({ 
+            success: true, 
+            message: `Assets generated successfully for client: ${clientName}`,
+            output: stdout
+        });
+
+    } catch (error) {
+        console.error('Error generating assets:', error);
+        res.status(500).json({ 
+            error: 'Failed to generate assets', 
+            details: error.message 
+        });
+    }
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'Icon resizer API is running' });
 });
@@ -113,5 +152,6 @@ app.use((error, req, res, next) => {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`POST /resize-icon - Upload an image with ?size=<pixels> query parameter`);
+    console.log(`POST /generate-assets - Generate assets for a client`);
     console.log(`GET /health - Health check endpoint`);
 });
