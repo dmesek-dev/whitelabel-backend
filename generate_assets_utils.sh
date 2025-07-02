@@ -452,5 +452,6 @@ rm -f app_ui_images/admin_splash_logo_light.png
 rm -f app_ui_images/admin_splash_logo_dark.png
 
 echo "Assets zip for $CLIENT_NAME generated"
+cd -
 
-aws s3 cp $CLIENT_NAME/$ASSETS_ZIP_NAME s3://demo-app-clients22/$CLIENT_NAME/$ASSETS_ZIP_NAME
+aws s3 cp $CLIENT_FOLDER/$ASSETS_ZIP_NAME s3://demo-app-clients22/$CLIENT_FOLDER/$ASSETS_ZIP_NAME
