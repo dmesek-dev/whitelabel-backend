@@ -452,3 +452,8 @@ rm -f app_ui_images/admin_splash_logo_light.png
 rm -f app_ui_images/admin_splash_logo_dark.png
 
 echo "Assets zip for $CLIENT_NAME generated"
+
+aws s3api put-object \
+        --bucket $S3_BUCKET_NAME \
+        --key $CLIENT_NAME/$ASSETS_ZIP_NAME \
+        --body $CLIENT_FOLDER/$ASSETS_ZIP_NAME
