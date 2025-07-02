@@ -411,6 +411,8 @@ do
     esac
 done
 
+aws s3 cp --recursive s3://demo-app-clients22/$CLIENT_FOLDER $CLIENT_FOLDER
+
 CLIENT_NAME=$(basename $CLIENT_FOLDER)
 ICON="$CLIENT_FOLDER/icon.png"
 ROUNDED_ICON="$CLIENT_FOLDER/app_ui_images/logo_png2.png"
