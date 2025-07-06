@@ -455,3 +455,4 @@ echo "Assets zip for $CLIENT_NAME generated"
 cd -
 
 aws s3 cp $CLIENT_FOLDER/$ASSETS_ZIP_NAME s3://demo-app-clients22/$CLIENT_FOLDER/$ASSETS_ZIP_NAME
+rm -r $CLIENT_FOLDER

@@ -99,8 +99,7 @@ app.post('/resize-icon', upload.single('image'), async (req, res) => {
 
 app.post('/generate-assets', async (req, res) => {
     try {
-        const clientName = req.query['client-name'] || req.body?.clientName;
-        
+	const clientName = req.query['client-name'] || (req.body && req.body.clientName);    
         if (!clientName) {
             return res.status(400).json({ error: 'client-name parameter is required' });
         }
