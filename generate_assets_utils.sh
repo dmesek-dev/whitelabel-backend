@@ -411,7 +411,7 @@ do
     esac
 done
 
-aws s3 cp --recursive s3://demo-app-clients22/$CLIENT_FOLDER $CLIENT_FOLDER
+aws s3 cp --recursive s3://$BUCKET_NAME/$CLIENT_FOLDER $CLIENT_FOLDER
 
 CLIENT_NAME=$(basename $CLIENT_FOLDER)
 ICON="$CLIENT_FOLDER/icon.png"
@@ -454,5 +454,5 @@ rm -f app_ui_images/admin_splash_logo_dark.png
 echo "Assets zip for $CLIENT_NAME generated"
 cd -
 
-aws s3 cp $CLIENT_FOLDER/$ASSETS_ZIP_NAME s3://demo-app-clients22/$CLIENT_FOLDER/$ASSETS_ZIP_NAME
+aws s3 cp $CLIENT_FOLDER/$ASSETS_ZIP_NAME s3://$BUCKET_NAME/$CLIENT_FOLDER/$ASSETS_ZIP_NAME
 rm -r $CLIENT_FOLDER
