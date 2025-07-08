@@ -9,8 +9,8 @@ do
     esac
 done
 
-CONFIG_FILE=$CLIENT_FOLDER/config.json
-aws s3 cp s3://$BUCKET_NAME/$CONFIG_FILE $CONFIG_FILE
+CONFIG_FILE=config.json
+aws s3 cp s3://$BUCKET_NAME/$CONFIG_FILE .
 
 FIREBASE_CONFIG_ZIP_NAME="firebase_config.zip"
 local current_folder=$(pwd)
@@ -31,7 +31,7 @@ mv ios/Runner/GoogleService-Info.plist $current_folder/ios/GoogleService-Info.pl
 mv macos/Runner/GoogleService-Info.plist $current_folder/macos/GoogleService-Info.plist
 mv firebase.json $current_folder
 cd $current_folder
-zip -rm $CLIENT_FOLDER/$FIREBASE_CONFIG_ZIP_NAME firebase_options.dart google-services.json ios/GoogleService-Info.plist macos/GoogleService-Info.plist firebase.json
+zip -rm $FIREBASE_CONFIG_ZIP_NAME firebase_options.dart google-services.json ios/GoogleService-Info.plist macos/GoogleService-Info.plist firebase.json
 
-aws s3 cp $CLIENT_FOLDER/$FIREBASE_CONFIG_ZIP_NAME s3://$BUCKET_NAME/$CLIENT_FOLDER/$FIREBASE_CONFIG_ZIP_NAME
-rm -r $CLIENT_FOLDER
+aws s3 cp $FIREBASE_CONFIG_ZIP_NAME s3://$BUCKET_NAME/$CLIENT_FOLDER/$FIREBASE_CONFIG_ZIP_NAME
+rm $CONFIG_FILE $FIREBASE_CONFIG_ZIP_NAME
