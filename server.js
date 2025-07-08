@@ -99,10 +99,10 @@ app.post('/resize-icon', upload.single('image'), async (req, res) => {
 
 app.post('/generate-assets', async (req, res) => {
     try {
-        const clientName = req.query['client-name'] || req.body?.clientName;
+        const clientFolder = req.query['client-folder'] || req.body?.clientFolder;
         
-        if (!clientName) {
-            return res.status(400).json({ error: 'client-name parameter is required' });
+        if (!clientFolder) {
+            return res.status(400).json({ error: 'client-folder parameter is required' });
         }
 
         const scriptPath = path.join(__dirname, 'generate_assets_utils.sh');
@@ -111,7 +111,7 @@ app.post('/generate-assets', async (req, res) => {
             return res.status(500).json({ error: 'generate_assets_utils.sh script not found' });
         }
 
-        const command = `"${scriptPath}" -c "${clientName}"`;
+        const command = `"${scriptPath}" -c "${clientFolder}"`;
         
         console.log(`Executing: ${command}`);
         const { stdout, stderr } = await execAsync(command);
@@ -123,7 +123,7 @@ app.post('/generate-assets', async (req, res) => {
 
         res.json({ 
             success: true, 
-            message: `Assets generated successfully for client: ${clientName}`,
+            message: `Assets generated successfully for client: ${clientFolder}`,
             output: stdout
         });
 
@@ -150,7 +150,7 @@ app.post('/setup-client-firebase', async (req, res) => {
             return res.status(500).json({ error: 'setup_firebase.sh script not found' });
         }
 
-        const command = `"${scriptPath}" "${clientFolder}"`;
+        const command = `"${scriptPath}" -c "${clientFolder}"`;
         
         console.log(`Executing: ${command}`);
         const { stdout, stderr } = await execAsync(command);
