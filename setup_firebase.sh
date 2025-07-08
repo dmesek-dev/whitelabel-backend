@@ -10,16 +10,16 @@ do
 done
 
 CONFIG_FILE=config.json
-aws s3 cp s3://$BUCKET_NAME/$CONFIG_FILE .
+aws s3 cp s3://$BUCKET_NAME/$CLIENT_FOLDER/$CONFIG_FILE .
 
 FIREBASE_CONFIG_ZIP_NAME="firebase_config.zip"
-local current_folder=$(pwd)
-local firebase_project_id=`jq -r '.FIREBASE_PROJECT_ID' $CONFIG_FILE`
-local bundle_id=`jq -r '.BUNDLE_ID' $CONFIG_FILE`
-local android_app_id=`jq -r '.ANDROID_APP_ID' $CONFIG_FILE`
-local macos_bundle_id=`jq -r '.MACOS_BUNDLE_ID' $CONFIG_FILE`
-local main_web_firebase_app_id=`jq -r '.MAIN_WEB_FIREBASE_APP_ID' $CONFIG_FILE`
-local windows_firebase_app_id=`jq -r '.WINDOWS_FIREBASE_APP_ID' $CONFIG_FILE`
+current_folder=$(pwd)
+firebase_project_id=`jq -r '.FIREBASE_PROJECT_ID' $CONFIG_FILE`
+bundle_id=`jq -r '.BUNDLE_ID' $CONFIG_FILE`
+android_app_id=`jq -r '.ANDROID_APP_ID' $CONFIG_FILE`
+macos_bundle_id=`jq -r '.MACOS_BUNDLE_ID' $CONFIG_FILE`
+main_web_firebase_app_id=`jq -r '.MAIN_WEB_FIREBASE_APP_ID' $CONFIG_FILE`
+windows_firebase_app_id=`jq -r '.WINDOWS_FIREBASE_APP_ID' $CONFIG_FILE`
 cd $FLUTTER_MAIN_PROJECT_PATH
 flutterfire configure -p $firebase_project_id --yes --platforms="ios, android, web, macos, windows" -i $bundle_id -a $android_app_id -m $macos_bundle_id -o firebase_options.dart -w $main_web_firebase_app_id -x $windows_firebase_app_id
 mv firebase_options.dart $current_folder
