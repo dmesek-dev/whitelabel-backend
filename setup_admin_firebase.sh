@@ -17,7 +17,7 @@ current_folder=$(pwd)
 firebase_project_id=`jq -r '.FIREBASE_PROJECT_ID' $CONFIG_FILE`
 admin_web_firebase_app_id=`jq -r '.ADMIN_WEB_FIREBASE_APP_ID' $CONFIG_FILE`
 cd $FLUTTER_ADMIN_PROJECT_PATH
-flutterfire configure -e $DEFAULT_FIREBASE_ACCOUNT -p $firebase_project_id --yes --platforms="web" -o firebase_options.dart -w $admin_web_firebase_app_id
+flutterfire configure -p $firebase_project_id --yes --platforms="web" -o firebase_options.dart -w $admin_web_firebase_app_id
 mv firebase_options.dart $current_folder
 mv firebase.json $current_folder
 cd $current_folder
