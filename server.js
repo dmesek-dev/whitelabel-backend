@@ -288,9 +288,9 @@ app.post('/setup-whitelabel', async (req, res) => {
             success: true,
             message: `Whitelabel setup completed successfully for client: ${clientFolder}`,
             steps: {
-                'admin-firebase': { success: true, output: results.adminFirebaseOutput },
-                'client-firebase': { success: true, output: results.clientFirebaseOutput },
-                'generate-assets': { success: true, output: results.assetsOutput }
+                'admin-firebase': { success: true },
+                'client-firebase': { success: true },
+                'generate-assets': { success: true }
             }
         });
 
