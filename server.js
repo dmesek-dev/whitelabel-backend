@@ -175,6 +175,45 @@ app.post('/setup-client-firebase', async (req, res) => {
     }
 });
 
+app.post('/setup-admin-firebase', async (req, res) => {
+    try {
+        const clientFolder = req.query['client-folder'] || req.body?.clientFolder;
+        
+        if (!clientFolder) {
+            return res.status(400).json({ error: 'client-folder parameter is required' });
+        }
+
+        const scriptPath = path.join(__dirname, 'setup_admin_firebase.sh');
+
+        if (!fs.existsSync(scriptPath)) {
+            return res.status(500).json({ error: 'setup_admin_firebase.sh script not found' });
+        }
+
+        const command = `"${scriptPath}" -c "${clientFolder}"`;
+        
+        console.log(`Executing: ${command}`);
+        const { stdout, stderr } = await execAsync(command);
+
+        console.log('Script output:', stdout);
+        if (stderr) {
+            console.warn('Script stderr:', stderr);
+        }
+
+        res.json({ 
+            success: true, 
+            message: `Admin Firebase setup completed successfully for client folder: ${clientFolder}`,
+            output: stdout
+        });
+
+    } catch (error) {
+        console.error('Error setting up Admin Firebase:', error);
+        res.status(500).json({ 
+            error: 'Failed to setup Admin Firebase', 
+            details: error.message 
+        });
+    }
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'Icon resizer API is running' });
 });
@@ -193,5 +232,6 @@ app.listen(PORT, () => {
     console.log(`POST /resize-icon - Upload an image with ?size=<pixels> query parameter`);
     console.log(`POST /generate-assets - Generate assets for a client`);
     console.log(`POST /setup-client-firebase - Setup Firebase for a client`);
+    console.log(`POST /setup-admin-firebase - Setup Admin Firebase for a client`);
     console.log(`GET /health - Health check endpoint`);
 });
