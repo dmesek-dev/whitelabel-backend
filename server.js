@@ -38,6 +38,64 @@ const upload = multer({
     }
 });
 
+// Helper functions for setup operations
+async function setupAdminFirebase(clientFolder) {
+    const scriptPath = path.join(__dirname, 'setup_admin_firebase.sh');
+
+    if (!fs.existsSync(scriptPath)) {
+        throw new Error('setup_admin_firebase.sh script not found');
+    }
+
+    const command = `"${scriptPath}" -c "${clientFolder}"`;
+    console.log(`Executing: ${command}`);
+    
+    const { stdout, stderr } = await execAsync(command);
+    console.log('Admin Firebase setup output:', stdout);
+    if (stderr) {
+        console.warn('Admin Firebase setup stderr:', stderr);
+    }
+    
+    return stdout;
+}
+
+async function setupClientFirebase(clientFolder) {
+    const scriptPath = path.join(__dirname, 'setup_firebase.sh');
+
+    if (!fs.existsSync(scriptPath)) {
+        throw new Error('setup_firebase.sh script not found');
+    }
+
+    const command = `"${scriptPath}" -c "${clientFolder}"`;
+    console.log(`Executing: ${command}`);
+    
+    const { stdout, stderr } = await execAsync(command);
+    console.log('Client Firebase setup output:', stdout);
+    if (stderr) {
+        console.warn('Client Firebase setup stderr:', stderr);
+    }
+    
+    return stdout;
+}
+
+async function generateAssets(clientFolder) {
+    const scriptPath = path.join(__dirname, 'generate_assets_utils.sh');
+
+    if (!fs.existsSync(scriptPath)) {
+        throw new Error('generate_assets_utils.sh script not found');
+    }
+
+    const command = `"${scriptPath}" -c "${clientFolder}"`;
+    console.log(`Executing: ${command}`);
+    
+    const { stdout, stderr } = await execAsync(command);
+    console.log('Generate assets output:', stdout);
+    if (stderr) {
+        console.warn('Generate assets stderr:', stderr);
+    }
+    
+    return stdout;
+}
+
 app.post('/resize-icon', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
@@ -99,32 +157,18 @@ app.post('/resize-icon', upload.single('image'), async (req, res) => {
 
 app.post('/generate-assets', async (req, res) => {
     try {
-        const clientFolder = req.query['client-folder'] || req.body?.clientFolder;
+        const clientName = req.query['client-name'] || req.body?.clientName;
         
-        if (!clientFolder) {
-            return res.status(400).json({ error: 'client-folder parameter is required' });
+        if (!clientName) {
+            return res.status(400).json({ error: 'client-name parameter is required' });
         }
 
-        const scriptPath = path.join(__dirname, 'generate_assets_utils.sh');
-
-        if (!fs.existsSync(scriptPath)) {
-            return res.status(500).json({ error: 'generate_assets_utils.sh script not found' });
-        }
-
-        const command = `"${scriptPath}" -c "${clientFolder}"`;
-        
-        console.log(`Executing: ${command}`);
-        const { stdout, stderr } = await execAsync(command);
-
-        console.log('Script output:', stdout);
-        if (stderr) {
-            console.warn('Script stderr:', stderr);
-        }
+        const output = await generateAssets(clientName);
 
         res.json({ 
             success: true, 
-            message: `Assets generated successfully for client: ${clientFolder}`,
-            output: stdout
+            message: `Assets generated successfully for client: ${clientName}`,
+            output: output
         });
 
     } catch (error) {
@@ -144,26 +188,12 @@ app.post('/setup-client-firebase', async (req, res) => {
             return res.status(400).json({ error: 'client-folder parameter is required' });
         }
 
-        const scriptPath = path.join(__dirname, 'setup_firebase.sh');
-
-        if (!fs.existsSync(scriptPath)) {
-            return res.status(500).json({ error: 'setup_firebase.sh script not found' });
-        }
-
-        const command = `"${scriptPath}" -c "${clientFolder}"`;
-        
-        console.log(`Executing: ${command}`);
-        const { stdout, stderr } = await execAsync(command);
-
-        console.log('Script output:', stdout);
-        if (stderr) {
-            console.warn('Script stderr:', stderr);
-        }
+        const output = await setupClientFirebase(clientFolder);
 
         res.json({ 
             success: true, 
             message: `Firebase setup completed successfully for client folder: ${clientFolder}`,
-            output: stdout
+            output: output
         });
 
     } catch (error) {
@@ -183,32 +213,91 @@ app.post('/setup-admin-firebase', async (req, res) => {
             return res.status(400).json({ error: 'client-folder parameter is required' });
         }
 
-        const scriptPath = path.join(__dirname, 'setup_admin_firebase.sh');
-
-        if (!fs.existsSync(scriptPath)) {
-            return res.status(500).json({ error: 'setup_admin_firebase.sh script not found' });
-        }
-
-        const command = `"${scriptPath}" -c "${clientFolder}"`;
-        
-        console.log(`Executing: ${command}`);
-        const { stdout, stderr } = await execAsync(command);
-
-        console.log('Script output:', stdout);
-        if (stderr) {
-            console.warn('Script stderr:', stderr);
-        }
+        const output = await setupAdminFirebase(clientFolder);
 
         res.json({ 
             success: true, 
             message: `Admin Firebase setup completed successfully for client folder: ${clientFolder}`,
-            output: stdout
+            output: output
         });
 
     } catch (error) {
         console.error('Error setting up Admin Firebase:', error);
         res.status(500).json({ 
             error: 'Failed to setup Admin Firebase', 
+            details: error.message 
+        });
+    }
+});
+
+app.post('/setup-whitelabel', async (req, res) => {
+    try {
+        const clientFolder = req.query['client-folder'] || req.body?.clientFolder;
+        
+        if (!clientFolder) {
+            return res.status(400).json({ error: 'client-folder parameter is required' });
+        }
+
+        console.log(`Starting whitelabel setup for client folder: ${clientFolder}`);
+        const results = {};
+
+        // Step 1: Setup Admin Firebase
+        try {
+            console.log('Step 1: Setting up Admin Firebase...');
+            results.adminFirebaseOutput = await setupAdminFirebase(clientFolder);
+            console.log('Step 1: Admin Firebase setup completed successfully');
+        } catch (error) {
+            console.error('Step 1 failed: Admin Firebase setup error:', error);
+            return res.status(500).json({
+                error: 'Setup failed at Step 1: Admin Firebase setup',
+                step: 'admin-firebase',
+                details: error.message
+            });
+        }
+
+        // Step 2: Setup Client Firebase
+        try {
+            console.log('Step 2: Setting up Client Firebase...');
+            results.clientFirebaseOutput = await setupClientFirebase(clientFolder);
+            console.log('Step 2: Client Firebase setup completed successfully');
+        } catch (error) {
+            console.error('Step 2 failed: Client Firebase setup error:', error);
+            return res.status(500).json({
+                error: 'Setup failed at Step 2: Client Firebase setup',
+                step: 'client-firebase',
+                details: error.message
+            });
+        }
+
+        // Step 3: Generate Assets
+        try {
+            console.log('Step 3: Generating assets...');
+            results.assetsOutput = await generateAssets(clientFolder);
+            console.log('Step 3: Asset generation completed successfully');
+        } catch (error) {
+            console.error('Step 3 failed: Asset generation error:', error);
+            return res.status(500).json({
+                error: 'Setup failed at Step 3: Asset generation',
+                step: 'generate-assets',
+                details: error.message
+            });
+        }
+
+        console.log(`Whitelabel setup completed successfully for client folder: ${clientFolder}`);
+        res.json({
+            success: true,
+            message: `Whitelabel setup completed successfully for client: ${clientFolder}`,
+            steps: {
+                'admin-firebase': { success: true, output: results.adminFirebaseOutput },
+                'client-firebase': { success: true, output: results.clientFirebaseOutput },
+                'generate-assets': { success: true, output: results.assetsOutput }
+            }
+        });
+
+    } catch (error) {
+        console.error('Unexpected error during whitelabel setup:', error);
+        res.status(500).json({ 
+            error: 'Unexpected error during whitelabel setup', 
             details: error.message 
         });
     }
@@ -233,5 +322,6 @@ app.listen(PORT, () => {
     console.log(`POST /generate-assets - Generate assets for a client`);
     console.log(`POST /setup-client-firebase - Setup Firebase for a client`);
     console.log(`POST /setup-admin-firebase - Setup Admin Firebase for a client`);
+    console.log(`POST /setup-whitelabel - Orchestrate all setup operations for a client`);
     console.log(`GET /health - Health check endpoint`);
 });
