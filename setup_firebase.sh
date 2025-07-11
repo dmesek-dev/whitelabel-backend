@@ -9,7 +9,8 @@ do
     esac
 done
 
-source ~/.bashrc
+source /home/ubuntu/firebase_config
+
 BUCKET_NAME=test-whitelabels
 FLUTTER_MAIN_PROJECT_PATH=/home/ubuntu/sea_trials_universal/apps/main_app
 CONFIG_FILE=config.json
