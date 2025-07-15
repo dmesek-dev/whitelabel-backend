@@ -7,10 +7,16 @@ do
     esac
 done
 
+
 BUCKET_NAME=test-whitelabels
 FLUTTER_ADMIN_PROJECT_PATH=/home/ubuntu/sea_trials_universal/apps/admin_panel
 CONFIG_FILE=config.json
 aws s3 cp s3://$BUCKET_NAME/$CLIENT_FOLDER/$CONFIG_FILE .
+aws s3 cp s3://$BUCKET_NAME/$CLIENT_FOLDER/firebase-service-account.json .
+
+export GOOGLE_APPLICATION_CREDENTIALS="firebase-service-account.json"
+GOOGLE_APPLICATION_CREDENTIALS="firebase-service-account.json"
+gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
 
 ADMIN_FIREBASE_CONFIG_ZIP_NAME="admin_firebase_config.zip"
 current_folder=$(pwd)
