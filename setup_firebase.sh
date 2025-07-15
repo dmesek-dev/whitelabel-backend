@@ -30,8 +30,8 @@ mv android/app/google-services.json $current_folder
 # Create separate folders for iOS and macOS GoogleService-Info.plist
 mkdir -p $current_folder/ios
 mkdir -p $current_folder/macos
-mv ios/Runner/GoogleService-Info.plist $current_folder/ios/GoogleService-Info.plist
-mv macos/Runner/GoogleService-Info.plist $current_folder/macos/GoogleService-Info.plist
+cp ios/Runner/GoogleService-Info.plist $current_folder/ios/GoogleService-Info.plist
+cp macos/Runner/GoogleService-Info.plist $current_folder/macos/GoogleService-Info.plist
 mv firebase.json $current_folder
 cd $current_folder
 zip -rm $FIREBASE_CONFIG_ZIP_NAME firebase_options.dart google-services.json ios/GoogleService-Info.plist macos/GoogleService-Info.plist firebase.json
