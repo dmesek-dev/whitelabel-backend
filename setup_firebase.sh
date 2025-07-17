@@ -9,11 +9,12 @@ do
     esac
 done
 
-source ~/.bashrc
 BUCKET_NAME=test-whitelabels
 FLUTTER_MAIN_PROJECT_PATH=/home/ubuntu/sea_trials_universal/apps/main_app
 CONFIG_FILE=config.json
 aws s3 cp s3://$BUCKET_NAME/$CLIENT_FOLDER/$CONFIG_FILE .
+aws s3 cp s3://$BUCKET_NAME/$CLIENT_FOLDER/firebase-service-account.json .
+unset FIREBASE_TOKEN
 
 FIREBASE_CONFIG_ZIP_NAME="firebase_config.zip"
 current_folder=$(pwd)
@@ -24,6 +25,10 @@ macos_bundle_id=`jq -r '.MACOS_BUNDLE_ID' $CONFIG_FILE`
 main_web_firebase_app_id=`jq -r '.MAIN_WEB_FIREBASE_APP_ID' $CONFIG_FILE`
 windows_firebase_app_id=`jq -r '.WINDOWS_FIREBASE_APP_ID' $CONFIG_FILE`
 cd $FLUTTER_MAIN_PROJECT_PATH
+
+export GOOGLE_APPLICATION_CREDENTIALS="$current_folder/firebase-service-account.json"
+gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+
 flutterfire configure -p $firebase_project_id --yes --platforms="ios, android, web, macos, windows" -i $bundle_id -a $android_app_id -m $macos_bundle_id -o firebase_options.dart -w $main_web_firebase_app_id -x $windows_firebase_app_id
 mv firebase_options.dart $current_folder
 mv android/app/google-services.json $current_folder
