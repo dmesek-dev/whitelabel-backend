@@ -96,6 +96,25 @@ async function generateAssets(clientFolder) {
     return stdout;
 }
 
+async function uploadCertificate(clientFolder) {
+    const scriptPath = path.join(__dirname, 'upload_certificate.sh');
+
+    if (!fs.existsSync(scriptPath)) {
+        throw new Error('upload_certificate.sh script not found');
+    }
+
+    const command = `"${scriptPath}" -c "${clientFolder}"`;
+    console.log(`Executing: ${command}`);
+    
+    const { stdout, stderr } = await execAsync(command);
+    console.log('Upload certificate output:', stdout);
+    if (stderr) {
+        console.warn('Upload certificate stderr:', stderr);
+    }
+    
+    return stdout;
+}
+
 app.post('/resize-icon', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
@@ -230,6 +249,31 @@ app.post('/setup-admin-firebase', async (req, res) => {
     }
 });
 
+app.post('/upload-certificate', async (req, res) => {
+    try {
+        const clientFolder = req.query['client-folder'] || req.body?.clientFolder;
+        
+        if (!clientFolder) {
+            return res.status(400).json({ error: 'client-folder parameter is required' });
+        }
+
+        const output = await uploadCertificate(clientFolder);
+
+        res.json({ 
+            success: true, 
+            message: `Certificate upload completed successfully for client folder: ${clientFolder}`,
+            output: output
+        });
+
+    } catch (error) {
+        console.error('Error uploading certificate:', error);
+        res.status(500).json({ 
+            error: 'Failed to upload certificate', 
+            details: error.message 
+        });
+    }
+});
+
 app.post('/setup-whitelabel', async (req, res) => {
     try {
         const clientFolder = req.query['client-folder'] || req.body?.clientFolder;
@@ -283,6 +327,20 @@ app.post('/setup-whitelabel', async (req, res) => {
             });
         }
 
+        // Step 4: Upload Certificate
+        try {
+            console.log('Step 4: Uploading certificate...');
+            results.certificateOutput = await uploadCertificate(clientFolder);
+            console.log('Step 4: Certificate upload completed successfully');
+        } catch (error) {
+            console.error('Step 4 failed: Certificate upload error:', error);
+            return res.status(500).json({
+                error: 'Setup failed at Step 4: Certificate upload',
+                step: 'upload-certificate',
+                details: error.message
+            });
+        }
+
         console.log(`Whitelabel setup completed successfully for client folder: ${clientFolder}`);
         res.json({
             success: true,
@@ -290,7 +348,8 @@ app.post('/setup-whitelabel', async (req, res) => {
             steps: {
                 'admin-firebase': { success: true },
                 'client-firebase': { success: true },
-                'generate-assets': { success: true }
+                'generate-assets': { success: true },
+                'upload-certificate': { success: true }
             }
         });
 
@@ -322,6 +381,7 @@ app.listen(PORT, () => {
     console.log(`POST /generate-assets - Generate assets for a client`);
     console.log(`POST /setup-client-firebase - Setup Firebase for a client`);
     console.log(`POST /setup-admin-firebase - Setup Admin Firebase for a client`);
+    console.log(`POST /upload-certificate - Upload certificate for a client`);
     console.log(`POST /setup-whitelabel - Orchestrate all setup operations for a client`);
     console.log(`GET /health - Health check endpoint`);
 });
