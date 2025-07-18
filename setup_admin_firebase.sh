@@ -1,4 +1,4 @@
-source config
+source /home/ubuntu/whitelabel-backend/config
 
 while getopts "c:wm" OPTION
 do

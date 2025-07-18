@@ -28,7 +28,7 @@
 #     - web_admin_icons/ - Web admin icon files
 #     - app_ui_images/ - App UI images for packages/app_ui/assets/images
 
-source config
+source /home/ubuntu/whitelabel-backend/config
 
 generate_launcher_background_color() {
     color=`convert $ICON -format '%[hex:p{1,1}]' info:-` && color=${color:0:6}
