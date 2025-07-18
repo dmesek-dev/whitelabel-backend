@@ -1,4 +1,6 @@
-source /home/ubuntu/whitelabel-backend/config
+BUCKET_NAME=seatrials-whitelabels
+FLUTTER_MAIN_PROJECT_PATH=/home/ubuntu/sea_trials_universal/apps/main_app
+FLUTTER_ADMIN_PROJECT_PATH=/home/ubuntu/sea_trials_universal/apps/admin_panel
 
 while getopts "c:wm" OPTION
 do

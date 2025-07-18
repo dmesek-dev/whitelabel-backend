@@ -28,7 +28,9 @@
 #     - web_admin_icons/ - Web admin icon files
 #     - app_ui_images/ - App UI images for packages/app_ui/assets/images
 
-source /home/ubuntu/whitelabel-backend/config
+BUCKET_NAME=seatrials-whitelabels
+FLUTTER_MAIN_PROJECT_PATH=/home/ubuntu/sea_trials_universal/apps/main_app
+FLUTTER_ADMIN_PROJECT_PATH=/home/ubuntu/sea_trials_universal/apps/admin_panel
 
 generate_launcher_background_color() {
     color=`convert $ICON -format '%[hex:p{1,1}]' info:-` && color=${color:0:6}
