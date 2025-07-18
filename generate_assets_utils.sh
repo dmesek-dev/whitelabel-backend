@@ -28,7 +28,7 @@
 #     - web_admin_icons/ - Web admin icon files
 #     - app_ui_images/ - App UI images for packages/app_ui/assets/images
 
-BUCKET_NAME=test-whitelabels
+BUCKET_NAME=seatrials-whitelabels
 FLUTTER_MAIN_PROJECT_PATH=/home/ubuntu/sea_trials_universal/apps/main_app
 
 generate_launcher_background_color() {

@@ -8,7 +8,7 @@ do
 done
 
 
-BUCKET_NAME=test-whitelabels
+BUCKET_NAME=seatrials-whitelabels
 FLUTTER_ADMIN_PROJECT_PATH=/home/ubuntu/sea_trials_universal/apps/admin_panel
 CONFIG_FILE=config.json
 aws s3 cp s3://$BUCKET_NAME/$CLIENT_FOLDER/$CONFIG_FILE .
